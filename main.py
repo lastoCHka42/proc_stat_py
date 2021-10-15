@@ -14,16 +14,17 @@ def stat_for_unix():
     while True:
         #get CPU
         cpu_usage =
+        proc_path = f'/proc/{pid}/status'
         #get Resident Set Size
-        rs_size = os.system("cat /proc/143311/status | grep VmRSS | awk '{print $2}'") #збс pid захардкодила
+        rs_size = os.system("cat " + proc_path + " | grep VmRSS | awk '{print $2}'") #збс pid захардкодила
         #get Virtual Memory Size /proc/[pid]/status | grep 'VMSize'
-        vm_size = os.system("cat /proc/143311/status | grep VmSize | awk '{print $2}'")
+        vm_size = os.system("cat " + proc_path + " | grep VmSize | awk '{print $2}'")
         #get open file descriptors count /proc/[pid]/status | grep 'FDSize'
-        fd_count = os.system("cat /proc/143311/status | grep FDSize | awk '{print $2}'")
+        fd_count = os.system(f"ls -1 {proc_path} | ws")
 
         result = {'cpu_usage': cpu_usage, 'rs_size': rs_size, "vm_size": vm_size, "fd_count": fd_count}
         json = json.dump(result)
-        
+
         #suspend to json file or to SQLite
 
         time.sleep(interval_time)

@@ -2,14 +2,14 @@ import os
 import subprocess
 import psutil
 import time
-
+import json
 
 #get as variables: path_to_file, interval time
-path_to_file = input("Path to process file:")
+path_to_file = input("Path to process file")
 interval_time = input("interval time, sec")
 path_to_log_file = input("path to log file")
 
-pid = subprocess.Popen(path_to_file)
+pid = subprocess.Popen(path_to_file).pid
 
 def stat_for_unix():
     while True:
@@ -32,11 +32,11 @@ def stat_for_unix():
 
         time.sleep(interval_time)
 
-def stat_for_mac:
+def stat_for_mac():
     print('This OS type is not supported yet')
 
 
-def stat_for_windows:
+def stat_for_windows():
     print('This OS type is not supported yet')
     #while True:
         #get CPU

@@ -26,6 +26,7 @@ def stat_for_unix():
         with open(path_to_log_file, 'a') as f:
             result = {'cpu_usage': cpu_usage, 'rs_size': rs_size, "vm_size": vm_size, "fd_count": fd_count, 'time': time.ctime()}
             json = json.dump(result, f)
+            f.write('\n')
 
 
         #suspend to json file or to SQLite

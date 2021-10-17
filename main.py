@@ -5,15 +5,16 @@ import time
 
 
 #get as variables: path_to_file, interval time
-path_to_file = input("Path to file:")
-interval_time = input("interval time")
+path_to_file = input("Path to process file:")
+interval_time = input("interval time, sec")
+path_to_log_file = input("path to log file")
 
 pid = subprocess.Popen(path_to_file)
 
 def stat_for_unix():
     while True:
         #get CPU
-        cpu_usage =
+        cpu_usage = ''
         proc_path = f'/proc/{pid}/status'
         #get Resident Set Size
         rs_size = os.system("cat " + proc_path + " | grep VmRSS | awk '{print $2}'") #збс pid захардкодила
@@ -22,8 +23,10 @@ def stat_for_unix():
         #get open file descriptors count /proc/[pid]/status | grep 'FDSize'
         fd_count = os.system(f"ls -1 {proc_path} | ws")
 
-        result = {'cpu_usage': cpu_usage, 'rs_size': rs_size, "vm_size": vm_size, "fd_count": fd_count}
-        json = json.dump(result)
+        with open(path_to_log_file, 'a') as f:
+            result = {'cpu_usage': cpu_usage, 'rs_size': rs_size, "vm_size": vm_size, "fd_count": fd_count, 'time': time.ctime()}
+            json = json.dump(result, f)
+
 
         #suspend to json file or to SQLite
 

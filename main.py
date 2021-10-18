@@ -36,8 +36,8 @@ def stat_for_unix():
         with open(proc_path, 'r') as f:
             for lines in f:
                 if 'VmRSS' in lines:
-                    space_to_units = lines.rfind(' ', 0)  # last space to parce units
-                    rs_units = lines[space_to_units + 1:-1].strip()  # parce units without spaces
+                    space_to_units = lines.rfind(' ', 0)  # last space to parse units
+                    rs_units = lines[space_to_units + 1:-1].strip()  # parse units without spaces
                     start = lines.find(' ')  # first space to parse value
                     rs_size = int(lines[start:space_to_units].strip())  # parse value without spaces, change to integer
                     rs_size = to_bytes(rs_size, rs_units)  # change kb (or Mb, or Gb...) to bytes for real statistic
@@ -53,14 +53,16 @@ def stat_for_unix():
         fd_count = len(counter)
         print(fd_count)
 
-
-        # suspend to json file
         with open(path_to_log_file, 'a') as f:
             result = {'cpu_usage': cpu_usage, 'rs_size': rs_size, "vm_size": vm_size, "fd_count": fd_count,
                       'time': time.ctime()}
             json.dump(result, f)
             f.write('\n')
 
+        # suspend to json file
+        with open(path_to_log_file, 'a') as f:
+            res = {time.ctime(): {'cpu_usage': cpu_usage, 'rs_size': rs_size, "vm_size": vm_size, "fd_count": fd_count}}
+            json.dump(res, f)
 
         time.sleep(int(interval_time))
 

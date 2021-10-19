@@ -8,7 +8,8 @@ import signal
 import getopt
 
 
-def to_bytes(integer, units):
+def to_bytes(integer: int, units: str) -> int:
+    # gets memory size as integer (value) and units (e.g.: integer = 128, units = kb). Returns memory size in bytes.
     if 'k' in units:
         integer *= 1024
     elif ('m' or 'M') in units:
@@ -20,15 +21,20 @@ def to_bytes(integer, units):
     return integer
 
 
-def stat_for_unix(pid, path_to_log_file, interval_time):
-    # get CPU
+def stat_for_unix(pid: int, path_to_log_file: str):
+    # gets info about process: CPU usage(%), Resident Set Size, Virtual Memory Size, count of File Descriptors
+    # takes pid as argument to get access to correct procfs file
+    # uses top.sh script to get cpu usage
+    # takes path to log file as argument. If file don't exist, create it.
+    # get CPU using top.sh script
     p = subprocess.Popen(['./top.sh', str(pid)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
     cpu_usage = float(out.decode("utf-8"))
 
+    # get Resident Set Size, Virtual Memory Size from procfs, find the path by pid (taken as argument to function)
+
     proc_path = f'/proc/{pid}/status'
 
-    # get Resident Set Size VmRSS, Virtual Memory Size
     with open(proc_path, 'r') as f:
         for lines in f:
             if 'VmRSS' in lines:
@@ -44,17 +50,11 @@ def stat_for_unix(pid, path_to_log_file, interval_time):
                 vm_size = int(lines[start:space_to_units].strip())
                 vm_size = to_bytes(vm_size, vm_units)
 
-    # get fd count
+    # get fd count - looking how many items in fd directory (from procfs)
     counter = [i for i in os.listdir(f'/proc/{pid}/fd')]
     fd_count = len(counter)
 
-    with open(path_to_log_file, 'a') as f:
-        result = {'cpu_usage': cpu_usage, 'rs_size': rs_size, "vm_size": vm_size, "fd_count": fd_count,
-                  'time': time.ctime()}
-        json.dump(result, f)
-        f.write('\n')
-
-    # suspend to json file
+    # write info to logfile as a json. Create if file don't exist
     with open(path_to_log_file, 'a+') as f:
         res = {time.ctime(): {'cpu_usage': cpu_usage, 'rs_size': rs_size, "vm_size": vm_size, "fd_count": fd_count}}
         json.dump(res, f)
@@ -71,18 +71,24 @@ def stat_for_windows():
 
 
 def main():
-    #set defaul vars
+    # set defaul vars
     path_to_file = 'default'
     interval_time = 10
     path_to_log_file = 'log.json'
 
     # get variables as arguments:
-    usage = '''statan - utility to analyze process statistic: process cpu(%), resident set size, virtual memory size, 
+    usage = '''
+    NAME: 
+        statan.py - utility to analyze process statistic: process cpu(%), resident set size, virtual memory size, 
     count of file descriptors. For linux - getting this info by parsing procfs. This utility will start the process 
-    by path to process file and end it when you press "Ctrl + C" to end statan \n usage:  statan.py -p <Path to 
-    process file> -i <interval time, sec> -l <path to log file (statan will create if not exist> or: \n statan.py 
-    --process <Path to process file> --interval <interval time, sec> --logfile <path to log file>. -h or --help print 
-    this help '''
+    by path to process file and end it when you press "Ctrl + C" to end statan 
+    USAGE:  
+        statan.py [options...]
+    OPTIONS:
+        -p, --process <Path to process file> - set path to process file. If not given, utility returns error message
+        -i, --interval <interval time, sec> - set interval to measure parameters in seconds. Default - 10 sec
+        -l, --logfile <path to log file> - set path to log file. Statan will create file if not exist. Default log.json
+         '''
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'hp:i:l:', ['help', 'process=', 'interval=', 'logfile='])
 
@@ -120,12 +126,11 @@ def main():
     if "Linux" in os_type:
         signal.signal(signal.SIGINT, signal_handler)
         while True:
-            stat_for_unix(pid, path_to_log_file, interval_time)
+            stat_for_unix(pid, path_to_log_file)
             time.sleep(int(interval_time))
 
-    # elif "Windows" in os_type:
-    #while True:
-    #     stat_for_windows()
+    elif "Windows" in os_type:
+        stat_for_windows()
     #     time.sleep(int(interval_time))
     else:
         print("This OS type is not supported yet")

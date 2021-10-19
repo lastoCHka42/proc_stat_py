@@ -88,6 +88,7 @@ def main():
         -p, --process <Path to process file> - set path to process file. If not given, utility returns error message
         -i, --interval <interval time, sec> - set interval to measure parameters in seconds. Default - 10 sec
         -l, --logfile <path to log file> - set path to log file. Statan will create file if not exist. Default log.json
+        -h, --help - print this help
          '''
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'hp:i:l:', ['help', 'process=', 'interval=', 'logfile='])

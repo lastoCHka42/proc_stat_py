@@ -71,10 +71,18 @@ def stat_for_windows():
 
 
 def main():
+    #set defaul vars
+    path_to_file = 'default'
+    interval_time = 10
+    path_to_log_file = 'log.json'
+
     # get variables as arguments:
-    usage = '''statan - utility to analyze process statistic: process cpu(%), resident set size, virtual memory size, count of file descriptors. For linux - getting this info by parsing procfs. This utility will start the process by path to process file and end it when you press "Ctrl + C" to end statan \n
-              usage:  statan.py -p <Path to process file> -i <interval time, sec> -l <path to log file (statan will create if not exist> or: \n
-              statan.py --process <Path to process file> --interval <interval time, sec> --logfile <path to log file>. -h or --help print this help'''
+    usage = '''statan - utility to analyze process statistic: process cpu(%), resident set size, virtual memory size, 
+    count of file descriptors. For linux - getting this info by parsing procfs. This utility will start the process 
+    by path to process file and end it when you press "Ctrl + C" to end statan \n usage:  statan.py -p <Path to 
+    process file> -i <interval time, sec> -l <path to log file (statan will create if not exist> or: \n statan.py 
+    --process <Path to process file> --interval <interval time, sec> --logfile <path to log file>. -h or --help print 
+    this help '''
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'hp:i:l:', ['help', 'process=', 'interval=', 'logfile='])
 
@@ -96,6 +104,9 @@ def main():
             interval_time = arg
         elif opt in ('-l', '--logfile'):
             path_to_log_file = arg
+    if path_to_file == 'default':
+        print('No path to process file given')
+        sys.exit(2)
 
     pid = subprocess.Popen(path_to_file).pid
 
@@ -111,9 +122,11 @@ def main():
         while True:
             stat_for_unix(pid, path_to_log_file, interval_time)
             time.sleep(int(interval_time))
-        print('Press Ctrl+C')
+
     # elif "Windows" in os_type:
+    #while True:
     #     stat_for_windows()
+    #     time.sleep(int(interval_time))
     else:
         print("This OS type is not supported yet")
 

@@ -65,6 +65,12 @@ def stat_for_unix():
             json.dump(res, f)
 
         time.sleep(int(interval_time))
+        
+        
+#exit with ctrl + c
+def signal_handler(sig, frame):
+    print('You pressed Ctrl+C!')
+    sys.exit(0)
 
 
 def stat_for_windows():
@@ -80,6 +86,9 @@ def stat_for_windows():
 os_type = os.uname()
 if "Linux" in os_type:
     stat_for_unix()
+    signal.signal(signal.SIGINT, signal_handler)
+    print('Press Ctrl+C')
+    os.system(f'kill -9 {pid}')
 # elif "Mac" in os_type:
 #     stat_for_mac()
 # elif "Windows" in os_type:

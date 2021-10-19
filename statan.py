@@ -73,12 +73,12 @@ def stat_for_windows():
 def main():
     # get variables as arguments:
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'p:i:l:', ['process', 'interval', 'logfile'])
+        opts, args = getopt.getopt(sys.argv[1:], 'hp:i:l:', ['help', 'process=', 'interval=', 'logfile='])
 
     except getopt.GetoptError:
         print('usage:  statan.py -p <Path to process file> -i <interval time, sec> -l <interval time, sec> or: ' '\n'
               'statan.py --process <Path to process file> --interval <interval time, sec> --logfile <interval time, '
-              'sec>')
+              'sec>. -h or --help print this help')
         sys.exit(2)
 
     for opt, arg in opts:

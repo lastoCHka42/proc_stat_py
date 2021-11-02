@@ -9,7 +9,9 @@ import getopt
 
 
 def to_bytes(integer: int, units: str) -> int:
-    # gets memory size as integer (value) and units (e.g.: integer = 128, units = kb). Returns memory size in bytes.
+    ''' gets memory size as integer (value) and units as string (e.g.: 
+    integer = 128, units = kb). Returns memory size in bytes as integer.
+    '''
     if 'k' in units:
         integer *= 1024
     elif ('m' or 'M') in units:
@@ -22,11 +24,13 @@ def to_bytes(integer: int, units: str) -> int:
 
 
 def stat_for_unix(pid: int, path_to_log_file: str):
-    # gets info about process: CPU usage(%), Resident Set Size, Virtual Memory Size, count of File Descriptors
-    # takes pid as argument to get access to correct procfs file
-    # uses top.sh script to get cpu usage
-    # takes path to log file as argument. If file don't exist, create it.
-    # get CPU using top.sh script
+    ''' gets info about process: CPU usage(%), Resident Set Size, 
+    Virtual Memory Size, count of File Descriptors.
+    Takes pid as argument to get access to correct procfs file
+    uses top.sh script to get cpu usage
+    takes path to log file as argument. If file don't exist, create it.
+    get CPU using top.sh script'''
+
     p = subprocess.Popen(['./top.sh', str(pid)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
     cpu_usage = float(out.decode("utf-8"))
@@ -76,7 +80,6 @@ def main():
     interval_time = 10
     path_to_log_file = 'log.json'
 
-    # get variables as arguments:
     usage = '''
     NAME: 
         statan.py - utility to analyze process statistic: process cpu(%), resident set size, virtual memory size, 
@@ -90,6 +93,9 @@ def main():
         -l, --logfile <path to log file> - set path to log file. Statan will create file if not exist. Default log.json
         -h, --help - print this help
          '''
+
+    # get variables as arguments from CLI or sys exit if not given:
+
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'hp:i:l:', ['help', 'process=', 'interval=', 'logfile='])
 
@@ -122,6 +128,8 @@ def main():
         print('You pressed Ctrl+C!')
         os.system(f'kill -9 {pid}')
         sys.exit(0)
+
+    # check os type to use correct function
 
     os_type = os.uname()
     if "Linux" in os_type:
